@@ -19,6 +19,25 @@ exports.index = function (req, res) {
     }
 };
 
+exports.cohortsWithActions = function(req,res){
+    if (!_.isEmpty(req.query)) {
+        return queryActivities(req.query, function (activities) {
+            var uniqCohorts =  _.uniqBy(activities,'cohort' );
+            var cohorts = _.map(uniqCohorts, 'cohort');
+            return res.status(200).json(cohorts)
+        })
+    } else {
+        Activity.find().exec(function (err, activities) {
+            if (err) {
+                return handleError(res, err);
+            }
+            var uniqCohorts =  _.uniqBy(activities,'cohort' );
+            var cohorts = _.map(uniqCohorts, 'cohort');
+            return res.status(200).json(cohorts);
+        });
+    }
+};
+
 var queryActivities = function (queryParams, cb) {
     Activity.find(queryParams).populate('_user').exec(function (err, activities) {
         var group = _.groupBy(activities, function (act) {

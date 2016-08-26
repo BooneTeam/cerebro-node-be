@@ -13,7 +13,11 @@ var ActivitySchema = new Schema({
     repo: String,
     activity_type: String,
     activity_comment: String,
-    activity_meta: {}
+    activity_meta: {},
+    repo_description: String,
+    phase: Number,
+    week: Number,
+    day: Number
 });
 
 ActivitySchema.methods.statusNumbers = function() {
@@ -83,9 +87,17 @@ function SetActivityData(activityData, cb) {
                 SetActivityData(activityData, cb);
             })
         } else {
+            var desSplit = repoData.repository.description;
             newActivity._user = data[0];
             newActivity.cohort = data[0].cohort;
             newActivity.repo = repoData.repository.name;
+            newActivity.descripition = repoData.repository.description;
+            if(desSplit){
+                var split = desSplit.split('-');
+                newActivity.phase = split[0];
+                newActivity.week = split[1];
+                newActivity.day = split[2];
+            }
             newActivity.activity_meta = repoData.commits;
             newActivity.activity_type = type;
             cb(false, newActivity);
