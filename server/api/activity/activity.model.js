@@ -1,7 +1,5 @@
-var _ = require('lodash');
-
 'use strict';
-
+var _ = require('lodash');
 
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
@@ -21,7 +19,6 @@ var ActivitySchema = new Schema({
 });
 
 ActivitySchema.methods.statusNumbers = function() {
-        console.log(this);
         if(this.activity_type == 'completed'){
             return 3
         } else if(this.activity_type == "blocked"){
@@ -43,13 +40,13 @@ ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb
             return
         }
         switch (true) {
-            case _.include(latestCommit.message, ':complete'):
+            case _.includes(latestCommit.message, ':complete'):
                 type = 'complete';
                 break;
-            case _.include(latestCommit.message, ':started'):
+            case _.includes(latestCommit.message, ':started'):
                 type = 'started';
                 break;
-            case _.include(latestCommit.message, ':blocked'):
+            case _.includes(latestCommit.message, ':blocked'):
                 type = 'blocked';
                 break;
             default:
