@@ -10,7 +10,7 @@ var cors = require('cors');
 module.exports = function(app) {
   // Insert routes below
   var corsOptions = {
-    origin: 'http://cerebro-dbc.herokuapp.com/',
+    origin: 'http://cerebro-dbc.herokuapp.com',
     optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
   };
 
