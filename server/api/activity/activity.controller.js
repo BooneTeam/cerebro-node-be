@@ -108,12 +108,13 @@ exports.create = function (req, res) {
             return handleError(res, err);
         }
         console.log(err);
-        Activity.create(activity, function (err, activity) {
-            if (err) {
-                return handleError(res, err);
-            }
-            return res.status(201).json(activity);
-        });
+        return res.status(201).json(activity)
+        // Activity.create(activity, function (err, activity) {
+        //     if (err) {
+        //         return handleError(res, err);
+        //     }
+        //     return res.status(201).json(activity);
+        // });
     });
 };
 
