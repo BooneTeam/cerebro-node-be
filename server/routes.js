@@ -15,7 +15,7 @@ module.exports = function(app) {
   };
 
   if(process.env.NODE_ENV == 'development'){
-    corsOptions['origin'] = ['http://cerebro-dbc.herokuapp.com/', 'http://localhost:8080']
+    corsOptions['origin'] = ['http://cerebro-dbc.herokuapp.com', 'http://localhost:8080']
   }
 
   app.use(cors(corsOptions));
