@@ -6,8 +6,6 @@ var mongoose = require('mongoose');
 // Get list of activity
 exports.index = function (req, res) {
     var User = mongoose.model('User');
-    console.log(req.query);
-    console.log('FDSHF><><><><><><><><><><><><><><><><><><><><><>')
     if (req.query['username']) {
         User.find({'github.name': req.query['username']}, function (err, data) {
             if (err) {
