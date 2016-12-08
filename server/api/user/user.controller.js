@@ -15,6 +15,7 @@ var validationError = function(res, err) {
  */
 exports.index = function(req, res) {
   User.find({}, '-salt -hashedPassword', function (err, users) {
+    console.log(users);
     if(err) return res.status(500).send(err);
     res.status(200).json(users);
   });

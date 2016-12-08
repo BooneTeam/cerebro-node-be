@@ -2,9 +2,42 @@
 
 var _ = require('lodash');
 var Activity = require('./activity.model');
-
+var mongoose = require('mongoose');
 // Get list of activity
 exports.index = function (req, res) {
+    var User = mongoose.model('User');
+    console.log(req.query);
+    console.log('FDSHF><><><><><><><><><><><><><><><><><><><><><>')
+    if (req.query['username']) {
+        User.find({'github.name': req.query['username']}, function (err, data) {
+            if (err) {
+                return handleError(res, err);
+            }
+            if (data.length > 0) {
+                delete req.query.username;
+                req.query['_user'] = data[0]._id;
+                console.log(req.query);
+                return runQuery(req, res);
+            }
+        });
+    } else {
+        return runQuery(req, res);
+        // if (!_.isEmpty(req.query)) {
+        //     return queryActivities(req.query, function (activities) {
+        //         return res.status(200).json(activities)
+        //     })
+        // } else {
+        //     Activity.find().populate('_user').exec(function (err, activitys) {
+        //         if (err) {
+        //             return handleError(res, err);
+        //         }
+        //         return res.status(200).json(activitys);
+        //     });
+        // }
+    }
+};
+
+function runQuery(req, res) {
     if (!_.isEmpty(req.query)) {
         return queryActivities(req.query, function (activities) {
             return res.status(200).json(activities)
@@ -17,12 +50,13 @@ exports.index = function (req, res) {
             return res.status(200).json(activitys);
         });
     }
-};
+}
 
-exports.cohortsWithActions = function(req,res){
+exports.cohortsWithActions = function (req, res) {
+    debugger;
     if (!_.isEmpty(req.query)) {
         return queryActivities(req.query, function (activities) {
-            var uniqCohorts =  _.uniqBy(activities,'cohort' );
+            var uniqCohorts = _.uniqBy(activities, 'cohort');
             var cohorts = _.map(uniqCohorts, 'cohort');
             return res.status(200).json(cohorts)
         })
@@ -31,7 +65,7 @@ exports.cohortsWithActions = function(req,res){
             if (err) {
                 return handleError(res, err);
             }
-            var uniqCohorts =  _.uniqBy(activities,'cohort' );
+            var uniqCohorts = _.uniqBy(activities, 'cohort');
             var cohorts = _.map(uniqCohorts, 'cohort');
             return res.status(200).json(cohorts);
         });
@@ -43,8 +77,7 @@ var queryActivities = function (queryParams, cb) {
         var group = _.groupBy(activities, function (act) {
             return act._doc._user.github.name
         });
-        var furthestActivities= getFurthestActionsCompleted(group)
-
+        var furthestActivities = getFurthestActionsCompleted(group)
         if (err) {
             return handleError(res, err);
         }
@@ -53,9 +86,9 @@ var queryActivities = function (queryParams, cb) {
 };
 
 exports.furthestAction = function (req, res) {
-    Activity.find().populate('_user').exec(function (err, activitys) {
+    Activity.find({_user: {$exists: true}}).populate('_user').exec(function (err, activitys) {
         var group = _.groupBy(activitys, function (act) {
-            return act._doc._user.github.name
+            return act._user.github.name
         });
 
         var furthestActivities = getFurthestActionsCompleted(group);
@@ -68,7 +101,7 @@ exports.furthestAction = function (req, res) {
 };
 
 var getFurthestActionsCompleted = function (group) {
-return  _.flatten(
+    return _.flatten(
         _.map(group,
             function (groupNow) {
                 return _.map(

@@ -5,7 +5,6 @@ var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
 
 var ActivitySchema = new Schema({
-
     _user: {type: Schema.Types.ObjectId, ref: 'User'},
     cohort: String,
     repo: String,
@@ -40,7 +39,7 @@ ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb
             return
         }
         switch (true) {
-            case _.includes(latestCommit.message, ':complete'):
+            case _.includes(latestCommit.message, ':completed'):
                 type = 'complete';
                 break;
             case _.includes(latestCommit.message, ':started'):
@@ -69,58 +68,67 @@ function SetActivityData(activityData, cb) {
     // and expecting all these fields prolly should fail
     // gracefully instead of avnwefnaspoifnweiunvadv
     var repoData = activityData.repoData;
-    var User = mongoose.model('User');
     var authorEmail = repoData["commits"][0]["author"]["email"];
     var userNames = authorEmail.split('+')[1].split('@')[0].split('.');
     var totalUsers = userNames.length;
-    for (var i = 0; i <= userNames.length - 1; i++) {
-        User.find({'github.name': userNames[i]}, function (err, data) {
-
-            if (err) {
-                return err;
-            }
-            if (data.length <= 0) {
-
-                var User = mongoose.model('User');
-
-                var user = new User(
-                    {
-                        // email: repoData.pusher.email,
-                        github: {name: userNames[i]},
-                        cohort: repoData.organization.login
-                    }
-                );
-                user.save(userAttributes, function (err, data) {
-                    if (err) {
-                        console.log(err);
-                        return err;
-                    }
-                    CreateActivity(activityData, function (err, data) {
-                        console.log(data)
-                    }, data);
-                })
-            } else {
-                CreateActivity(activityData, function (err, data) {
-                    console.log(data)
-                }, data);
-            }
-
-            totalUsers -= 1;
-            if (totalUsers == 0) {
-                cb(200, {})
-            }
-
-        });
+    for (var i = 0; i < userNames.length; i++) {
+        findOrCreate(userNames[i], CreateActivity,activityData)
+        totalUsers -= 1;
+        if (totalUsers == 0) {
+            cb(200, {})
+        }
     }
 }
+
+function findOrCreate(userName, createActivityFn,activityData){
+    var repoData = activityData.repoData;
+    var User = mongoose.model('User');
+    User.find({'github.name': userName}, function (err, data) {
+        if (err) {
+            return err;
+        }
+        if (data.length <= 0) {
+            var User = mongoose.model('User');
+            var user = new User(
+                {
+                    // email: repoData.pusher.email,
+                    github: {name: userName},
+                    cohort: repoData.organization.login
+                }
+            );
+            user.save(user, function (err, userData) {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                createActivityFn(activityData, function (err, dta) {
+                    console.log(dta)
+                }, userData);
+            })
+        } else {
+            createActivityFn(activityData, function (err, dta) {
+                console.log(dta)
+            }, data);
+        }
+
+    });
+}
+
+
 
 function CreateActivity(activityData, cb, data) {
     var repoData = activityData.repoData;
     var type = activityData.type;
     var newActivity = {};
     var desSplit = repoData.repository.description;
-    newActivity._user = data[0];
-    newActivity.cohort = data[0].cohort;
+    if(data[0]){
+        newActivity._user = data[0]._id;
+        newActivity.cohort = data[0].cohort;
+    } else if(data) {
+        newActivity._user = data._id;
+        newActivity.cohort = data.cohort;
+    }
+
     newActivity.repo = repoData.repository.name;
     newActivity.descripition = repoData.repository.description;
     if (desSplit) {
@@ -133,7 +141,8 @@ function CreateActivity(activityData, cb, data) {
     newActivity.activity_type = type;
     mongoose.model('Activity').create(newActivity, function (err, activity) {
         if (err) {
-            return handleError(res, err);
+            console.log(err)
+            return err
         }
         cb(false, activity);
     });
