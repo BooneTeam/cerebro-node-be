@@ -69,7 +69,6 @@ function SetActivityData(activityData, cb) {
     // gracefully instead of avnwefnaspoifnweiunvadv
     var repoData = activityData.repoData;
     var authorEmail = repoData["commits"][0]["author"]["email"];
-    debugger;
     var userNames;
     if (_.includes(authorEmail,'+')){
         userNames = authorEmail.split('+')[1].split('@')[0].split('.');
@@ -89,7 +88,8 @@ function SetActivityData(activityData, cb) {
 function findOrCreate(userName, createActivityFn,activityData){
     var repoData = activityData.repoData;
     var User = mongoose.model('User');
-    User.find({'github.name': userName}, function (err, data) {
+    debugger;
+    User.find({'github.name': {'$regex' : ('^' + userName +'$'), '$options' : 'i'}}, function (err, data) {
         if (err) {
             return err;
         }
