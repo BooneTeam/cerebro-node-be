@@ -73,11 +73,11 @@ function SetActivityData(activityData, cb) {
     if (_.includes(authorEmail,'+')){
         userNames = authorEmail.split('+')[1].split('@')[0].split('.');
     } else{
-        userNames = [repoData["commits"][0]["author"]["name"]]
+        userNames = [repoData["commits"][0]["author"]["username"]]
     }
     var totalUsers = userNames.length;
     for (var i = 0; i < userNames.length; i++) {
-        findOrCreate(userNames[i], CreateActivity,activityData)
+        findOrCreate(userNames[i], CreateActivity,activityData);
         totalUsers -= 1;
         if (totalUsers == 0) {
             cb(200, {})
@@ -88,7 +88,6 @@ function SetActivityData(activityData, cb) {
 function findOrCreate(userName, createActivityFn,activityData){
     var repoData = activityData.repoData;
     var User = mongoose.model('User');
-    debugger;
     User.find({'github.name': {'$regex' : ('^' + userName +'$'), '$options' : 'i'}}, function (err, data) {
         if (err) {
             return err;

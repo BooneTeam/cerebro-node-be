@@ -30,7 +30,7 @@ module.exports = function (grunt) {
     },
     express: {
       options: {
-        port: process.env.PORT || 9000 
+        port: process.env.PORT || 9000
       },
       dev: {
         options: {
@@ -56,7 +56,8 @@ module.exports = function (grunt) {
       },
       jsTest: {
         files: [],
-        tasks: ['newer:jshint:all', 'karma']
+        tasks: ['newer:jshint:all']
+        // 'karma'
       },
       gruntfile: {
         files: ['Gruntfile.js']
@@ -297,7 +298,7 @@ module.exports = function (grunt) {
       return grunt.task.run([
         'clean:server',
         'env:all',
-        'karma'
+        // 'karma'
       ]);
     }
 

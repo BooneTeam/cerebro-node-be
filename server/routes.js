@@ -33,11 +33,7 @@ module.exports = function(app) {
   };
   app.use(allowCrossDomain);
 
-  // app.use(cors(corsOptions));
-  // debugger;
   app.use('/api/activities', require('./api/activity'));
-  app.use('/api/repos', require('./api/repo'));
-  app.use('/api/things', require('./api/thing'));
   app.use('/api/users', require('./api/user'));
 
   app.use('/auth', require('./auth'));

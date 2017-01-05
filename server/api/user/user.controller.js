@@ -61,7 +61,7 @@ exports.destroy = function(req, res) {
 
 // Make an endpoint where a teacher can enter a org name and key and we can pull all the collaborators info.
 // exports.createUsersFromOrg = function(req,res,next){
-//   debugger;
+
 // };
 
 /**

@@ -7,31 +7,22 @@ var mongoose = require('mongoose');
 exports.index = function (req, res) {
     var User = mongoose.model('User');
     if (req.query['username']) {
+        console.log(req.query)
         User.find({'github.name': req.query['username']}, function (err, data) {
             if (err) {
+
                 return handleError(res, err);
             }
             if (data.length > 0) {
                 delete req.query.username;
                 req.query['_user'] = data[0]._id;
-                console.log(req.query);
                 return runQuery(req, res);
+            } else {
+                return res.status(200).json(data)
             }
         });
     } else {
         return runQuery(req, res);
-        // if (!_.isEmpty(req.query)) {
-        //     return queryActivities(req.query, function (activities) {
-        //         return res.status(200).json(activities)
-        //     })
-        // } else {
-        //     Activity.find().populate('_user').exec(function (err, activitys) {
-        //         if (err) {
-        //             return handleError(res, err);
-        //         }
-        //         return res.status(200).json(activitys);
-        //     });
-        // }
     }
 };
 
@@ -51,7 +42,6 @@ function runQuery(req, res) {
 }
 
 exports.cohortsWithActions = function (req, res) {
-    debugger;
     if (!_.isEmpty(req.query)) {
         return queryActivities(req.query, function (activities) {
             var uniqCohorts = _.uniqBy(activities, 'cohort');
@@ -140,12 +130,6 @@ exports.create = function (req, res) {
         }
         console.log(err);
         return res.status(201).json(activity)
-        // Activity.create(activity, function (err, activity) {
-        //     if (err) {
-        //         return handleError(res, err);
-        //     }
-        //     return res.status(201).json(activity);
-        // });
     });
 };
 
