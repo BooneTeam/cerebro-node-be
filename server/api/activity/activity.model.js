@@ -52,7 +52,7 @@ ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb
                 break;
             default:
                 // Change this to jsut return 200. Dont save if not any of the above
-                type = 'unknown';
+                type = 'started';
                 break;
         }
         // }
