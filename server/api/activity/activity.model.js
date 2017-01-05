@@ -42,7 +42,7 @@ ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb
         }
         switch (true) {
             case _.includes(allMessagesString, ':completed'):
-                type = 'complete';
+                type = 'completed';
                 break;
             case _.includes(allMessagesString, ':started'):
                 type = 'started';
