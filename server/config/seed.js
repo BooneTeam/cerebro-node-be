@@ -6,15 +6,11 @@
 'use strict';
 // Insert seed models below]
 var Activity = require('../api/activity/activity.model');
-var Repo = require('../api/repo/repo.model');
-var Thing = require('../api/thing/thing.model');
 var User = require('../api/user/user.model');
 var _ = require('lodash');
 
 // Insert seed data below
 var activitySeed = require('../api/activity/activity.seed.json');
-var repoSeed = require('../api/repo/repo.seed.json');
-var thingSeed = require('../api/thing/thing.seed.json');
 
 const COHORTS = ['aus-red-pandas-2016', 'aus-squirrels-2016', 'aus-lizards-2016'];
 const ACT_TYPES = ['started', 'completed', 'blocked']
@@ -84,14 +80,3 @@ function UsersAndActivities(username) {
 }
 
 console.log('SSEEEEEEDING');
-
-
-//
-
-// Repo.find({}).remove(function() {
-// 	Repo.create(repoSeed);
-// });
-
-// Thing.find({}).remove(function() {
-//   Thing.create(thingSeed);
-// });
