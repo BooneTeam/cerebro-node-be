@@ -72,7 +72,7 @@ function SetActivityData(activityData, cb) {
     if (_.includes(authorEmail,'+')){
         userNames = authorEmail.split('+')[1].split('@')[0].split('.');
     } else{
-        userNames = [repoData["commits"][0]["author"]["username"]]
+        userNames = [repoData["sender"]["login"]]
     }
     var totalUsers = userNames.length;
     for (var i = 0; i < userNames.length; i++) {
@@ -95,7 +95,6 @@ function findOrCreate(userName, createActivityFn,activityData){
             var User = mongoose.model('User');
             var user = new User(
                 {
-                    // email: repoData.pusher.email,
                     github: {name: userName},
                     cohort: repoData.organization.login
                 }
