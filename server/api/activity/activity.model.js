@@ -33,19 +33,21 @@ ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb
 
     var type;
     if (repoData.commits) {
+        var messages = _.map(repoData.commits,function(obj){return obj.message});
+        var allMessagesString = messages.join();
         var latestCommit = repoData.commits[0];
         if (!latestCommit) {
             cb(200);
             return
         }
         switch (true) {
-            case _.includes(latestCommit.message, ':completed'):
+            case _.includes(allMessagesString, ':completed'):
                 type = 'complete';
                 break;
-            case _.includes(latestCommit.message, ':started'):
+            case _.includes(allMessagesString, ':started'):
                 type = 'started';
                 break;
-            case _.includes(latestCommit.message, ':blocked'):
+            case _.includes(allMessagesString, ':blocked'):
                 type = 'blocked';
                 break;
             default:
@@ -53,9 +55,6 @@ ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb
                 type = 'unknown';
                 break;
         }
-        //
-        // if (type == 'unknown') {
-        //    return cb(200);
         // }
         SetActivityData({type: type, repoData: repoData}, cb);
     } else {
