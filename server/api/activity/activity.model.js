@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('lodash');
+var github = require('../github_api/github_api.controller.js');
 
 var mongoose = require('mongoose'),
     Schema = mongoose.Schema;
@@ -30,10 +31,11 @@ ActivitySchema.methods.statusNumbers = function () {
 };
 
 ActivitySchema.statics.buildFromWebHook = function buildFromWebHook(repoData, cb) {
-
     var type;
     if (repoData.commits) {
-        var messages = _.map(repoData.commits,function(obj){return obj.message});
+        var messages = _.map(repoData.commits, function (obj) {
+            return obj.message
+        });
         var allMessagesString = messages.join();
         var latestCommit = repoData.commits[0];
         if (!latestCommit) {
@@ -69,25 +71,26 @@ function SetActivityData(activityData, cb) {
     var repoData = activityData.repoData;
     var authorEmail = repoData["commits"][0]["author"]["email"];
     var userNames;
-    if (_.includes(authorEmail,'+')){
+    if (_.includes(authorEmail, '+')) {
         userNames = authorEmail.split('+')[1].split('@')[0].split('.');
-    } else{
+    } else {
         userNames = [repoData["sender"]["login"]]
     }
     var totalUsers = userNames.length;
     for (var i = 0; i < userNames.length; i++) {
-        findOrCreate(userNames[i], CreateActivity,activityData);
+        findOrCreate(userNames[i], CreateActivity, activityData);
+        // FIX THIS.. Obviously it doesnt work it's not in the callback idioto
         totalUsers -= 1;
         if (totalUsers == 0) {
-            cb(200, {})
+            cb(null, {})
         }
     }
 }
 
-function findOrCreate(userName, createActivityFn,activityData){
+function findOrCreate(userName, createActivityFn, activityData) {
     var repoData = activityData.repoData;
     var User = mongoose.model('User');
-    User.find({'github.name': {'$regex' : ('^' + userName +'$'), '$options' : 'i'}}, function (err, data) {
+    User.find({'github.name': {'$regex': ('^' + userName + '$'), '$options': 'i'}}, function (err, data) {
         if (err) {
             return err;
         }
@@ -108,6 +111,18 @@ function findOrCreate(userName, createActivityFn,activityData){
                     console.log(dta)
                 }, userData);
             })
+        } else if (!data[0].github.full_name) {
+            github.github.cerebro_user_name(userName, function (err, response) {
+                if (err) return cb(200);
+                var fullName = response;
+                data[0].github.full_name = fullName;
+                data[0].markModified('github');
+                data[0].save(function (err,data) {
+                    createActivityFn(activityData, function (err, dta) {
+                        console.log(dta)
+                    }, data);
+                })
+            });
         } else {
             createActivityFn(activityData, function (err, dta) {
                 console.log(dta)
@@ -118,16 +133,15 @@ function findOrCreate(userName, createActivityFn,activityData){
 }
 
 
-
 function CreateActivity(activityData, cb, data) {
     var repoData = activityData.repoData;
     var type = activityData.type;
     var newActivity = {};
     var desSplit = repoData.repository.description;
-    if(data[0]){
+    if (data[0]) {
         newActivity._user = data[0]._id;
         newActivity.cohort = data[0].cohort;
-    } else if(data) {
+    } else if (data) {
         newActivity._user = data._id;
         newActivity.cohort = data.cohort;
     }
